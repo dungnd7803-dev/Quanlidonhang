@@ -1,8 +1,10 @@
 package com.example.Quanlydonhang.controller;
 
 import com.example.Quanlydonhang.dto.request.RequestKhachHang;
+import com.example.Quanlydonhang.dto.response.PageResponse;
 import com.example.Quanlydonhang.dto.response.ResponseDao;
 import com.example.Quanlydonhang.model.KhachHang;
+import com.example.Quanlydonhang.model.SanPham;
 import com.example.Quanlydonhang.service.ServiceKhachHang;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,7 @@ public class ControllerKhachHang {
         return ResponseEntity.ok(ok);
     }
 
-    @GetMapping({"id"})
+    @GetMapping({"/{id}"})
     public KhachHang getid(@PathVariable long id) {
         KhachHang ok = serviceKhachHang.getId(id);
         return ok;
@@ -42,7 +44,10 @@ public class ControllerKhachHang {
     public ResponseEntity<?> update(@RequestParam long id,@RequestBody RequestKhachHang requestKhachHang) {
         ResponseDao<?> ok = serviceKhachHang.update(id,requestKhachHang);
         return ResponseEntity.ok(ok);
-
-
+    }
+    @GetMapping
+    public ResponseEntity<PageResponse<KhachHang>> getSanPham(@RequestParam int page, @RequestParam int size){
+        PageResponse<KhachHang> sp = serviceKhachHang.getresultPage(size,page);
+        return ResponseEntity.ok(sp);
     }
 }

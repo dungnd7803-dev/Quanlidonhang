@@ -23,7 +23,7 @@ public class ControllerSanPham {
         return ResponseEntity.ok(ok);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getid(@PathVariable long id) {
         SanPham ok = serviceSanPham.finbyid(id);
         return ResponseEntity.ok(ok);

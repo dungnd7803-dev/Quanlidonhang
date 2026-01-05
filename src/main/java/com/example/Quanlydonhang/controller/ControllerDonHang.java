@@ -22,8 +22,8 @@ public class ControllerDonHang {
         ResponseDao<?> ok = serviceDonHang.create(donhang);
         return ResponseEntity.ok(ok);
     }
-    @GetMapping
-    ResponseEntity<?> findbyid(long id){
+    @GetMapping("/{id}")
+    ResponseEntity<?> findbyid(@PathVariable long id){
         ResponseDao<?> ok = serviceDonHang.findbyid(id);
         return ResponseEntity.ok(ok);
     }

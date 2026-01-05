@@ -23,32 +23,31 @@ import java.util.List;
 @Transactional
 public class DonHangServiceImpl implements ServiceDonHang {
     private final DaoDonHang daoDonHang;
-    private final ServiceKhachHang serviceKhachHang;
-    private final ServiceSanPham serviceSanPham;
 
-    public DonHangServiceImpl(DaoDonHang daoDonHang, ServiceKhachHang serviceKhachHang, ServiceSanPham serviceSanPham) {
+    public DonHangServiceImpl(DaoDonHang daoDonHang) {
         this.daoDonHang = daoDonHang;
-        this.serviceKhachHang = serviceKhachHang;
-        this.serviceSanPham = serviceSanPham;
+
     }
 
     @Override
     public ResponseDao<?> create(RequestDonHang requestDonHang) {
 
-        KhachHang khachHang = serviceKhachHang.getId(requestDonHang.getId_khachhang());
+        KhachHang khachHang = daoDonHang.getbyid(KhachHang.class, requestDonHang.getId_khachhang()).orElseThrow(() -> new RuntimeException("Không có id khách hàng "));
         DonHang donHang = new DonHang();
         List<ChiTietDonHang> chiTietDonHangs = new ArrayList<>();
         for (RequestChiTietDonHang ctsp : requestDonHang.getChiTietDonHangs()) {
-            SanPham sanPham = serviceSanPham.finbyid(ctsp.getId_sanPham());
+            SanPham sanPham = daoDonHang.getbyid(SanPham.class, ctsp.getId_sanPham()).orElseThrow(() -> new RuntimeException("Không có sản phẩm. "));
             if (sanPham.getSoLuong() == 0) {
                 throw new RuntimeException(sanPham.getTen() + " đã hết hàng.");
             } else {
-                if(sanPham.getSoLuong() < ctsp.getSoLuong()) {throw new RuntimeException(sanPham.getTen() + " không đủ trong kho.");}
+                if (sanPham.getSoLuong() < ctsp.getSoLuong()) {
+                    throw new RuntimeException(sanPham.getTen() + " không đủ trong kho.");
+                }
                 ChiTietDonHang chiTietDonHang = new ChiTietDonHang();
                 chiTietDonHang.setDonHang(donHang);
                 chiTietDonHang.setSoLuong(ctsp.getSoLuong());
                 chiTietDonHang.setSanPham(sanPham);
-                serviceSanPham.minus_quantity(sanPham.getId(), ctsp.getSoLuong());
+                sanPham.setSoLuong(sanPham.getSoLuong() - ctsp.getSoLuong());
                 chiTietDonHang.setDonGia(ctsp.getSoLuong() * sanPham.getGia());
                 chiTietDonHangs.add(chiTietDonHang);
             }
@@ -56,27 +55,29 @@ public class DonHangServiceImpl implements ServiceDonHang {
             donHang.setChiTietDonHangs(chiTietDonHangs);
             daoDonHang.create(donHang);
         }
-        return ResponseDao.ok(requestDonHang); }
+        return ResponseDao.ok(requestDonHang);
+    }
 
     @Override
     public ResponseDao<?> findbyid(long id) {
         List<ResponseChiTietDonHang> responseChiTietDonHang = new ArrayList<>();
+        DonHang idctdh = daoDonHang.getbyid(DonHang.class, id).orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
         List<ChiTietDonHang> chiTietDonHang = daoDonHang.chiTietDonHangs(id);
-        for(ChiTietDonHang donHang : chiTietDonHang){
-        ResponseChiTietDonHang ctdh = new ResponseChiTietDonHang();
-        ctdh.setId_donhang(id);
-        ctdh.setTen_khachhang(donHang.getDonHang().getKhachHang().getTen());
-        ctdh.setTenSanPham(donHang.getSanPham().getTen());
-        ctdh.setGia(donHang.getDonGia());
-        ctdh.setSoluong(donHang.getSoLuong());
-        responseChiTietDonHang.add(ctdh);
-    }
+        for (ChiTietDonHang donHang : chiTietDonHang) {
+            ResponseChiTietDonHang ctdh = new ResponseChiTietDonHang();
+            ctdh.setId_donhang(id);
+            ctdh.setTen_khachhang(donHang.getDonHang().getKhachHang().getTen());
+            ctdh.setTenSanPham(donHang.getSanPham().getTen());
+            ctdh.setGia(donHang.getDonGia());
+            ctdh.setSoluong(donHang.getSoLuong());
+            responseChiTietDonHang.add(ctdh);
+        }
         return ResponseDao.ok(responseChiTietDonHang);
     }
 
     @Override
     public ResponseDao<?> delete(long id) {
-        DonHang donHang = daoDonHang.getbyid(DonHang.class,id).orElseThrow(()-> new RuntimeException("Không có id đơn hàng."));
+        DonHang donHang = daoDonHang.getbyid(DonHang.class, id).orElseThrow(() -> new RuntimeException("Không có id đơn hàng."));
         daoDonHang.delete(donHang);
         return ResponseDao.ok();
     }

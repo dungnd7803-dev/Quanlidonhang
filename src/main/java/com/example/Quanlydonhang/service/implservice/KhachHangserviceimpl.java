@@ -3,6 +3,7 @@ package com.example.Quanlydonhang.service.implservice;
 import com.example.Quanlydonhang.dao.DaoKhachHang;
 import com.example.Quanlydonhang.dto.mapper.MapperKhachHang;
 import com.example.Quanlydonhang.dto.request.RequestKhachHang;
+import com.example.Quanlydonhang.dto.response.PageResponse;
 import com.example.Quanlydonhang.dto.response.ResponseDao;
 import com.example.Quanlydonhang.model.KhachHang;
 import com.example.Quanlydonhang.service.ServiceKhachHang;
@@ -46,5 +47,10 @@ public class KhachHangserviceimpl implements ServiceKhachHang {
     @Override
     public KhachHang getId(long id) {
         return daoKhachHang.getbyid(KhachHang.class,id).orElseThrow(()-> new RuntimeException("Không có id khách hàng."));
+    }
+
+    @Override
+    public PageResponse<KhachHang> getresultPage(int size, int page) {
+       return daoKhachHang.findallwithPage(KhachHang.class,page,size);
     }
 }
