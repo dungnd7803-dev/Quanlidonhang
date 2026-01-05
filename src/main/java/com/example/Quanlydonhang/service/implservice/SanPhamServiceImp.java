@@ -2,6 +2,7 @@ package com.example.Quanlydonhang.service.implservice;
 
 import com.example.Quanlydonhang.dao.DaoSanPham;
 import com.example.Quanlydonhang.dto.mapper.MapperSanPham;
+import com.example.Quanlydonhang.dto.request.ProductSearchRequest;
 import com.example.Quanlydonhang.dto.request.RequestSanPham;
 import com.example.Quanlydonhang.dto.response.PageResponse;
 import com.example.Quanlydonhang.dto.response.ResponseDao;
@@ -9,6 +10,8 @@ import com.example.Quanlydonhang.model.SanPham;
 import com.example.Quanlydonhang.service.ServiceSanPham;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -41,7 +44,7 @@ public class SanPhamServiceImp implements ServiceSanPham {
     }
 
     @Override
-    public ResponseDao<?> update(long id ,RequestSanPham requestSanPham) {
+    public ResponseDao<?> update(long id, RequestSanPham requestSanPham) {
         SanPham sanPham = finbyid(id);
         mapperSanPham.updateFromDto(requestSanPham, sanPham);
         daoSanPham.update(sanPham);
@@ -52,9 +55,22 @@ public class SanPhamServiceImp implements ServiceSanPham {
         SanPham sanPham = finbyid(idSP);
         sanPham.setSoLuong(sanPham.getSoLuong() - soluong);
     }
+
     @Override
-    public PageResponse<SanPham> getresultPage(int size, int page){
-       return daoSanPham.findallwithPage(SanPham.class,page,size);
+    public PageResponse<SanPham> getresultPage(int size, int page) {
+        return daoSanPham.findallwithPage(SanPham.class, page, size);
+    }
+
+    @Override
+    public PageResponse<SanPham> productSearch(ProductSearchRequest productSearchRequest, int page, int size) {
+        long count = daoSanPham.countProductSearch(productSearchRequest);
+        List<SanPham> sanPhams = daoSanPham.ProductSearch(productSearchRequest, page, size);
+        return PageResponse.<SanPham>builder()
+                .result(sanPhams)
+                .totalPage(page)
+                .size(size)
+                .totalItem(count)
+                .build();
     }
 
 }

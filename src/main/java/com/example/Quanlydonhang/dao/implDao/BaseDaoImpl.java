@@ -17,7 +17,7 @@ public abstract class BaseDaoImpl implements DaoBase {
     @PersistenceContext
     private EntityManager entityManager;
 
-    Session getSession() {
+   protected Session getSession() {
         return entityManager.unwrap(Session.class);
     }
 
