@@ -1,0 +1,14 @@
+debug: false
+spring:
+  datasource:             #spring.datasource chỉ là đường dẫn xuống class cụ thể để tạo OBJ
+    url: jdbc:mysql://localhost:3306/quanlydonhang
+    username: root
+    password:
+  jpa:
+    hibernate:         #spring.jpa.hbernate cung vay
+      ddl-auto : update
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
